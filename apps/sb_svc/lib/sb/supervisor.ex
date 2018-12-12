@@ -15,6 +15,7 @@ defmodule SB.Supervisor do
       {Registry, keys: :unique, name: SB.Registry.TransactionRepo},
       {Registry, keys: :unique, name: SB.Registry.NodeInfo},
       {SB.Master, name: SB.Master},
+      #supervisor(SB.PhoenixSocketClient, [name: SB.PhoenixSocketClient]),
       {DynamicSupervisor, name: SB.NodeSupervisor, strategy: :one_for_one},
       {Task.Supervisor, name: SB.MiningTaskSupervisor}
     ]

@@ -9,7 +9,7 @@ defmodule SbWeb.Application do
     # List all child processes to be supervised
     children = [
       # Start the endpoint when the application starts
-      SbWebWeb.Endpoint
+      {SbWebWeb.Endpoint, name: SbWebWeb.Endpoint}
       # Starts a worker by calling: SbWeb.Worker.start_link(arg)
       # {SbWeb.Worker, arg},
     ]
@@ -18,6 +18,8 @@ defmodule SbWeb.Application do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: SbWeb.Supervisor]
     Supervisor.start_link(children, opts)
+
+    #SB.Master.perform_transaction()
   end
 
   # Tell Phoenix to update the endpoint configuration
