@@ -11,7 +11,7 @@ defmodule SBTest do
 
   @tag timeout: 100_000_000
   test "start network and perform coinbase tx followed by a regular transaction" do
-    Logger.debug("Block state now: " )
+    Logger.debug("Block state now: ")
     perform_test()
     perform_coinbase_tx_test()
   end
@@ -61,7 +61,7 @@ defmodule SBTest do
 
     Logger.debug(
       "Amount*100000000 and balance: " <>
-      inspect(amount * 100_000_000) <> "  " <> inspect(balance)
+        inspect(amount * 100_000_000) <> "  " <> inspect(balance)
     )
 
     # Process.sleep(10000)
@@ -92,11 +92,12 @@ defmodule SBTest do
     block = check_for_block_in_state(owner_pid, owner_state.block.block_id, 1)
     Logger.debug("Block test after coinbase: " <> inspect(block))
 
+    # 2nd tx
     receiver_wallet_pid =
       receivers_wallet_pid
       |> List.last()
 
-    Logger.debug("Receiver wallet pid: " <> inspect(receiver_wallet_pid))
+    Logger.debug("Receiver wallet pid for 2nd tx: " <> inspect(receiver_wallet_pid))
 
     receiver_state = GenServer.call(receiver_wallet_pid, :get_state_info, :infinity)
 
@@ -112,7 +113,7 @@ defmodule SBTest do
         :infinity
       )
 
-    #Helper.print_out_non_empty()
+    # Helper.print_out_non_empty()
 
     assert balance == amount * 100_000_000 && block != nil
   end

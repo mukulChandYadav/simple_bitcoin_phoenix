@@ -7,19 +7,19 @@ defmodule SB.Wallet do
   # TODO: Add cryptographic functionalities
 
   def start_link(state, opts) do
-    ##### Logger.debug("Inside #{inspect __MODULE__} Node start_link of #{inspect self}")
+    ##### # Logger.debug("Inside #{inspect __MODULE__} Node start_link of #{inspect self}")
     GenServer.start_link(__MODULE__, state, opts)
   end
 
   def start_link(opts) do
-    ##### Logger.debug("Inside #{inspect __MODULE__} Node start_link with opts - #{inspect opts}")
+    ##### # Logger.debug("Inside #{inspect __MODULE__} Node start_link with opts - #{inspect opts}")
     ret_val = GenServer.start_link(__MODULE__, opts)
-    ##### Logger.debug("Inside #{inspect __MODULE__} ret val - #{inspect ret_val}")
+    ##### # Logger.debug("Inside #{inspect __MODULE__} ret val - #{inspect ret_val}")
     ret_val
   end
 
   def init(opts) do
-    Logger.debug("Called with  - #{inspect(opts)}")
+    # Logger.debug("Called with  - #{inspect(opts)}")
 
     wallet_state = %SB.WalletInfo{
       secret_key: opts.secret_key,
@@ -64,16 +64,16 @@ defmodule SB.Wallet do
 
   def create_utxos(utxos, utxos_map, utxo_keys, key_index, remaining_amount) do
     {:ok, key} = Enum.fetch(utxo_keys, key_index)
-    Logger.debug("Key for utxo: " <> inspect(key))
+    # Logger.debug("Key for utxo: " <> inspect(key))
     utxo = utxos_map[key]
     # Map.get(utxos_map, key)
 
     # out_index_key = Map.keys(utxo) |> List.first()
-    # Logger.debug("Key for utxo: " <> inspect(out_index_key))
+    # # Logger.debug("Key for utxo: " <> inspect(out_index_key))
     # utxos = utxos ++ [utxo[out_index_key]]
-    # Logger.debug("utxos: " <> inspect(utxos))
+    # # Logger.debug("utxos: " <> inspect(utxos))
     # utxo_values = utxo[out_index_key]
-    # Logger.debug("UTXO value: " <> inspect(utxo_values))
+    # # Logger.debug("UTXO value: " <> inspect(utxo_values))
     # utxo_amount = utxo_values["value"] |> String.to_integer(16)
 
     utxos ++ [utxos_map]
@@ -85,7 +85,7 @@ defmodule SB.Wallet do
     node_id = state.owner_id
 
     path = Path.absname("./lib/data/")
-    # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
+    # # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
     filename = inspect(node_id) <> "utxo" <> ".json"
 
     {:ok, utxos_map} =
@@ -105,7 +105,7 @@ defmodule SB.Wallet do
         acc + transaction_balance
       end)
 
-    # Logger.debug("Balance: " <> inspect(balance))
+    # # Logger.debug("Balance: " <> inspect(balance))
     {:reply, {:ok, balance}, state}
   end
 
@@ -122,19 +122,19 @@ defmodule SB.Wallet do
 
     # Pick up the utxos for the specified amount and call create_transaction_block with their list and btc address
     path = Path.absname("./lib/data/")
-    # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
+    # # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
     node_id = inspect(state.owner_id)
     filename = node_id <> "utxo" <> ".json"
     :ok = File.mkdir_p!(path)
 
     {:ok, utxos_map} = SB.Tx.get_json(path <> "/" <> filename)
-    Logger.debug("UTXOS map: " <> inspect(utxos_map))
+    # Logger.debug("UTXOS map: " <> inspect(utxos_map))
     utxo_keys = Map.keys(utxos_map)
-    Logger.debug("UTXO keys: " <> inspect(utxo_keys))
+    # Logger.debug("UTXO keys: " <> inspect(utxo_keys))
 
     utxos = [utxos_map]
     # create_utxos([], utxos_map, utxo_keys, 0, amount)
-    Logger.debug("UTXOS: " <> inspect(utxos))
+    Logger.debug("UTXOS for tx block creation: " <> inspect(utxos))
 
     tx_block =
       SB.Tx.create_transaction_block(
@@ -146,7 +146,7 @@ defmodule SB.Wallet do
         state.public_key
       )
 
-    Logger.debug("Created tx block: " <> inspect(tx_block))
+    Logger.debug("Created tx block to be published: " <> inspect(tx_block))
 
     # Publish transaction
     publish_transaction(tx_block)
@@ -165,7 +165,7 @@ defmodule SB.Wallet do
 
     tx = SB.Tx.coinbase_transaction(amount, state.public_key)
 
-    Logger.debug("Created coinbase tx block: " <> inspect(tx))
+    # Logger.debug("Created coinbase tx block: " <> inspect(tx))
 
     publish_transaction(tx)
     {:reply, :ok, state}
@@ -173,7 +173,7 @@ defmodule SB.Wallet do
 
   defp publish_transaction(tx) do
     out = :ets.lookup(:ets_trans_repo, :new_tranx)
-    Logger.debug("Publish tx called : #{inspect(out)} ")
+    # Logger.debug("Publish tx called : #{inspect(out)} ")
 
     map =
       if(out == nil || out == []) do
@@ -183,7 +183,7 @@ defmodule SB.Wallet do
         map
       end
 
-    # Logger.debug("Tx hash is an atom: " <> inspect(Map.put(map, tx.hash, tx)))
+    # # Logger.debug("Tx hash is an atom: " <> inspect(Map.put(map, tx.hash, tx)))
     :ets.insert(:ets_trans_repo, {:new_tranx, Map.put(map, tx.hash, tx)})
 
     SB.Node.get_miners()
@@ -195,21 +195,25 @@ defmodule SB.Wallet do
   def update_wallet_with_new_tx(wallet, new_tx) do
     # TODO: Update files after transaction validation from the miners
 
-    Logger.debug("Update wallet with tx - #{inspect(new_tx)}")
-    {num_inputs, _} = Integer.parse(new_tx.num_inputs)
-    # Assuming last output is change output back to sender
-    sender_wallet_addr_hash = List.last(new_tx.outputs).scriptPubKey
-    wallet_pid = lookup_wallet_pid(sender_wallet_addr_hash)
-    GenServer.call(wallet_pid, {:update_wallet_sender, new_tx}, :infinity)
-
     # Assuming first output is output back to receiver
     {num_outputs, _} = Integer.parse(new_tx.num_outputs)
-    Logger.debug("Number of Outputs: " <> inspect(num_outputs))
+    # Logger.debug("Number of Outputs: " <> inspect(num_outputs))
     {:ok, output} = Enum.fetch(new_tx.outputs, 0)
     wallet_pid = lookup_wallet_pid(output.scriptPubKey)
+    Logger.debug("Update receiver wallet for wallet: " <> inspect(wallet_pid))
     GenServer.call(wallet_pid, {:update_wallet_receiver, new_tx}, :infinity)
 
-    Logger.debug("End of output" <> inspect(num_outputs))
+    # Logger.debug("Update wallet with tx - #{inspect(new_tx)}")
+    # {num_inputs, _} = Integer.parse(new_tx.num_inputs)
+    # Assuming last output is change output back to sender
+    if num_outputs == 2 do
+      sender_wallet_addr_hash = List.last(new_tx.outputs).scriptPubKey
+      wallet_pid = lookup_wallet_pid(sender_wallet_addr_hash)
+      Logger.debug("Update sender wallet for wallet: " <> inspect(wallet_pid))
+      GenServer.call(wallet_pid, {:update_wallet_sender, new_tx}, :infinity)
+    end
+
+    # Logger.debug("End of output" <> inspect(num_outputs))
   end
 
   defp lookup_wallet_pid(script_pub_key) do
