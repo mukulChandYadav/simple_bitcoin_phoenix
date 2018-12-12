@@ -30,6 +30,10 @@ defmodule SB.Master do
     File.rm_rf(path)
     File.mkdir_p(path)
 
+
+#    Process.sleep(5000)
+#    SbWebWeb.Endpoint.broadcast!("room:tx", "new_msg", %{uid: "Hi", body: "cfc"})
+
     {:ok, %{}}
   end
 
