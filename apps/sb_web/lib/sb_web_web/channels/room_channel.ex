@@ -21,9 +21,6 @@ defmodule SbWebWeb.RoomChannel do
     Logger.debug("Called with message "<> inspect body)
     broadcast!(socket, "new_msg", %{body: body})
 
-    # TODO Remove this call
-    SB.Master.perform_transaction()
-
     {:noreply, socket}
   end
 

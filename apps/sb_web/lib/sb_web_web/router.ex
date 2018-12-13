@@ -20,7 +20,9 @@ defmodule SbWebWeb.Router do
 
     get "/sb", SBController, :index
 
-    get "/sb/:tx", SBController, :tx
+    get "/sb/tx", SBController, :tx
+
+    get "/sb/simulation", SBController, :simulate
 
   end
 
