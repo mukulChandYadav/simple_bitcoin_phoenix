@@ -5,12 +5,14 @@
 
 ## Execute phoenix project
 
+Run both Service layer and web framework
+
 mix phx.server
 
 And open http://localhost:4000/sb
 
 
-#### Execute backend
+#### Execute Service layer only
 
 cd apps/sb_svc
 

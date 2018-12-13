@@ -34,5 +34,11 @@
   </article>
 </section>
 
+<div>
+  <form action="/sb/simulation"  method="get">
+   <input type="submit" value="Start simulation">
+ </form>
+</div>
+
 <div id="messages"></div>
 <input id="chat-input" type="text"></input>
