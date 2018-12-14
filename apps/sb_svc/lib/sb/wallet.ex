@@ -14,6 +14,7 @@ defmodule SB.Wallet do
   def start_link(opts) do
     ##### # Logger.debug("Inside #{inspect __MODULE__} Node start_link with opts - #{inspect opts}")
     ret_val = GenServer.start_link(__MODULE__, opts)
+    Logger.debug("Wallet up: " <> inspect(self()))
     ##### # Logger.debug("Inside #{inspect __MODULE__} ret val - #{inspect ret_val}")
     ret_val
   end
@@ -114,7 +115,7 @@ defmodule SB.Wallet do
         _from,
         state
       ) do
-path = Path.absname(SB.Master.data_dir())
+    path = Path.absname(SB.Master.data_dir())
     # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
     filename = inspect(state.owner_id) <> "utxo" <> ".json"
 

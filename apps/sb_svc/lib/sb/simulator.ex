@@ -36,7 +36,7 @@ defmodule SB.Simulator do
     Logger.debug("Reciever pids: " <> inspect(receivers_wallet_pid))
 
     possible_sender_pids =
-      Enum.reduce(Enum.take(receivers_wallet_pid, 3), [wallet_pid], fn receiver_wallet_pid, acc ->
+      Enum.reduce(Enum.take(receivers_wallet_pid, 8), [wallet_pid], fn receiver_wallet_pid, acc ->
         if wallet_pid != receivers_wallet_pid do
           txd_wallet_id = peform_tx(wallet_pid, receiver_wallet_pid, amount)
           acc ++ [txd_wallet_id]
@@ -44,6 +44,8 @@ defmodule SB.Simulator do
           acc
         end
       end)
+
+    Logger.debug("Possible sender pids: " <> inspect(possible_sender_pids))
 
     Process.sleep(5000)
 
@@ -54,8 +56,17 @@ defmodule SB.Simulator do
 
         if current_sender_index < num_tx do
           {:ok, receiver_wallet_pid} = Enum.fetch(receivers_wallet_pid, current_sender_index)
-          txd_wallet_id = peform_tx(sender_pid, receiver_wallet_pid, amount)
-          {:cont, acc ++ txd_wallet_id}
+
+          Logger.debug(
+            "Trying to send from: " <> inspect(sender_pid) <> "to" <> inspect(receiver_wallet_pid)
+          )
+
+          if(Process.alive?(sender_pid) && Process.alive?(receiver_wallet_pid)) do
+            txd_wallet_id = peform_tx(sender_pid, receiver_wallet_pid, amount)
+            {:cont, acc ++ [txd_wallet_id]}
+          else
+            {:cont, acc}
+          end
         else
           {:halt, acc}
         end

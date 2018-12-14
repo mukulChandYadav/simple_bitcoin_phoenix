@@ -234,7 +234,7 @@ defmodule SB.Tx do
     change_output = List.first(tx[:outputs])
     value = change_output[:value]
 
-    path = Path.absname("./lib/data/")
+    path = Path.absname(SB.Master.data_dir())
     filename = inspect(node_id) <> "utxo" <> ".json"
 
     content =

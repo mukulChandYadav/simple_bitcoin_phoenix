@@ -109,7 +109,7 @@ defmodule SB.Master do
   end
 
   def data_dir() do
-    "../lib/data"
+    "./lib/data"
   end
 
   ############## Remove everything below (Copied from test)
