@@ -361,7 +361,7 @@ defmodule SB.Node do
         # TODO: x --> sender, y --> receiver and r --> amount for the tx
 
         SbWebWeb.Endpoint.broadcast!("room:sbp_channel", "new_tx", %{
-          "body" => Poison.encode!(%{x: :rand.uniform(100), y: :rand.uniform(100), r: 10})
+          "body" => Poison.encode!(%{sender: :rand.uniform(100), receiver: :rand.uniform(100), amount: 10})
         })
 
         Logger.debug("Update wallet with tx: " <> inspect(List.last(new_state.block.tx)))

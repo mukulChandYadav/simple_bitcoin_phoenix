@@ -1,6 +1,3 @@
-<canvas id="walletBarChartElement" width="400" height="400"></canvas>
-
-<canvas id="txBubbleChartElement" width="400" height="400"></canvas>
 
 <script>
 
@@ -14,9 +11,19 @@ console.log("Click handler called");
 
 </script>
 
+
 <div>
    <button onClick="startSimulation()">Start simulation</button>
 </div>
 
+
+<canvas id="txBubbleChartElement" width="400" height="400"></canvas>
+
+<canvas id="walletBarChartElement" width="400" height="400"></canvas>
+
+
 <div id="messages"></div>
-<input id="chat-input" type="text"/>
+
+
+
+<!--<input id="chat-input" type="text"/>-->
