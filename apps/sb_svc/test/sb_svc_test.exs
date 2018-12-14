@@ -89,10 +89,13 @@ defmodule SBTest do
         :infinity
       )
 
-    block = check_for_block_in_state(owner_pid, owner_state.block.block_id, 1)
+    Logger.debug("Response to create_tx 1: " <> inspect(response))
+    # block = check_for_block_in_state(owner_pid, owner_state.block.block_id, 1)
     Logger.debug("Block test after coinbase: " <> inspect(block))
 
     # 2nd tx
+    # wallet_pid = receiver_wallet_pid
+
     receiver_wallet_pid =
       receivers_wallet_pid
       |> List.last()
@@ -113,8 +116,33 @@ defmodule SBTest do
         :infinity
       )
 
+    Logger.debug("Response to create_tx 2: " <> inspect(response))
     # Helper.print_out_non_empty()
 
+    # 3rd tx
+    wallet_pid = receiver_wallet_pid
+
+    receiver_wallet_pid =
+      receivers_wallet_pid
+      |> List.last()
+
+    Logger.debug("Receiver wallet pid for 2nd tx: " <> inspect(receiver_wallet_pid))
+
+    receiver_state = GenServer.call(receiver_wallet_pid, :get_state_info, :infinity)
+
+    receiver_bitcoinaddr_pubkey =
+      receiver_state.public_key
+      |> SB.CryptoHandle.generate_address()
+      |> Base.encode16()
+
+    response =
+      GenServer.call(
+        wallet_pid,
+        {:create_transaction, amount * 0.01, receiver_wallet_pid, receiver_bitcoinaddr_pubkey},
+        :infinity
+      )
+
+    Process.sleep(15000)
     assert balance == amount * 100_000_000 && block != nil
   end
 end

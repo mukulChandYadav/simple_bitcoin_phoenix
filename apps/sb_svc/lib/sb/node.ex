@@ -358,9 +358,9 @@ defmodule SB.Node do
           } block."
         )
 
-        SbWebWeb.Endpoint.broadcast!("room:tx", "new_msg", %{
-          "body" => Poison.encode!(List.last(new_state.block.tx))
-        })
+        # SbWebWeb.Endpoint.broadcast!("room:tx", "new_msg", %{
+        #   "body" => Poison.encode!(List.last(new_state.block.tx))
+        # })
 
         Logger.debug("Update wallet with tx: " <> inspect(List.last(new_state.block.tx)))
         SB.Wallet.update_wallet_with_new_tx(new_state.wallet, List.last(new_state.block.tx))

@@ -114,44 +114,61 @@ defmodule SB.Wallet do
         _from,
         state
       ) do
-    # Create transaction
-    Logger.debug("Working to create_tx and state: " <> inspect(state))
-    # Convert to satoshis
-    satoshi_multiplier = 100_000_000
-    amount = (amount * satoshi_multiplier) |> trunc()
-
-    # Pick up the utxos for the specified amount and call create_transaction_block with their list and btc address
+    # Check if enough money exists to create transaction and then maybe create the tx
     path = Path.absname("./lib/data/")
     # # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
-    node_id = inspect(state.owner_id)
-    filename = node_id <> "utxo" <> ".json"
-    :ok = File.mkdir_p!(path)
+    filename = inspect(state.owner_id) <> "utxo" <> ".json"
 
-    {:ok, utxos_map} = SB.Tx.get_json(path <> "/" <> filename)
-    # Logger.debug("UTXOS map: " <> inspect(utxos_map))
-    utxo_keys = Map.keys(utxos_map)
-    # Logger.debug("UTXO keys: " <> inspect(utxo_keys))
+    {:ok, output} =
+      (path <> "/" <> filename)
+      |> SB.Tx.get_json()
 
-    utxos = [utxos_map]
-    # create_utxos([], utxos_map, utxo_keys, 0, amount)
-    Logger.debug("UTXOS for tx block creation: " <> inspect(utxos))
-
-    tx_block =
-      SB.Tx.create_transaction_block(
-        node_id,
-        utxos,
-        receiver_bitcoinaddr_pubkey,
-        amount,
-        state.secret_key,
-        state.public_key
-      )
-
-    Logger.debug("Created tx block to be published: " <> inspect(tx_block))
-
-    # Publish transaction
-    publish_transaction(tx_block)
+    Logger.debug("Working to create_tx and state: " <> inspect(state))
+    # Convert to satoshis
+    create_and_publish(output, amount, receiver_bitcoinaddr_pubkey, state)
 
     {:reply, :ok, state}
+  end
+
+  defp create_and_publish(output, amount, receiver_bitcoinaddr_pubkey, state) do
+    if(output != %{}) do
+      satoshi_multiplier = 100_000_000
+      amount = (amount * satoshi_multiplier) |> trunc()
+
+      # Pick up the utxos for the specified amount and call create_transaction_block with their list and btc address
+      # path = Path.absname("./lib/data/")
+      # # # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
+      node_id = inspect(state.owner_id)
+      # filename = node_id <> "utxo" <> ".json"
+      # :ok = File.mkdir_p!(path)
+
+      # {:ok, utxos_map} = SB.Tx.get_json(path <> "/" <> filename)
+      # # Logger.debug("UTXOS map: " <> inspect(utxos_map))
+      # utxo_keys = Map.keys(utxos_map)
+      # Logger.debug("UTXO keys: " <> inspect(utxo_keys))
+
+      utxos = [output]
+      # create_utxos([], utxos_map, utxo_keys, 0, amount)
+      Logger.debug("UTXOS for tx block creation: " <> inspect(utxos))
+
+      tx_block =
+        SB.Tx.create_transaction_block(
+          node_id,
+          utxos,
+          receiver_bitcoinaddr_pubkey,
+          amount,
+          state.secret_key,
+          state.public_key
+        )
+
+      Logger.debug("Created tx block to be published: " <> inspect(tx_block))
+
+      # Publish transaction
+      publish_transaction(tx_block)
+    else
+      Logger.debug("Paisa nahi hai bhai")
+      Process.sleep(2000)
+    end
   end
 
   def handle_call(
@@ -208,6 +225,7 @@ defmodule SB.Wallet do
     # Assuming last output is change output back to sender
     if num_outputs == 2 do
       sender_wallet_addr_hash = List.last(new_tx.outputs).scriptPubKey
+      Logger.debug("ScriptPubKey of the sender: " <> inspect(sender_wallet_addr_hash))
       wallet_pid = lookup_wallet_pid(sender_wallet_addr_hash)
       Logger.debug("Update sender wallet for wallet: " <> inspect(wallet_pid))
       GenServer.call(wallet_pid, {:update_wallet_sender, new_tx}, :infinity)
