@@ -36,6 +36,6 @@ module.exports = (env, options) => ({
   },
   plugins: [
     new MiniCssExtractPlugin({ filename: '../css/app.css' }),
-    new CopyWebpackPlugin([{ from: 'static/', to: '../' }, { from: 'js/chart.bundle.min.js', to: '../js/' }])
+    new CopyWebpackPlugin([{ from: 'static/', to: '../' }, { from: 'js/chart.bundle.min.js', to: '../js/' }, { from: 'js/jquery.min.js', to: '../js/' }])
   ]
 });

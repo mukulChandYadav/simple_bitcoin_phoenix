@@ -84,8 +84,8 @@ defmodule SB.Wallet do
     balance = 0
     node_id = state.owner_id
 
-    path = Path.absname("./lib/data/")
-    # # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
+    path = Path.absname(SB.Master.data_dir())
+    # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
     filename = inspect(node_id) <> "utxo" <> ".json"
 
     {:ok, utxos_map} =
@@ -114,9 +114,8 @@ defmodule SB.Wallet do
         _from,
         state
       ) do
-    # Check if enough money exists to create transaction and then maybe create the tx
-    path = Path.absname("./lib/data/")
-    # # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
+path = Path.absname(SB.Master.data_dir())
+    # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
     filename = inspect(state.owner_id) <> "utxo" <> ".json"
 
     {:ok, output} =

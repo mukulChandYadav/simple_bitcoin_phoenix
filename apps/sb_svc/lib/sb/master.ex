@@ -22,14 +22,13 @@ defmodule SB.Master do
     mine_job_table = :ets.new(:ets_mine_jobs, [:public, :set, :named_table])
     wallet_address_table = :ets.new(:ets_wallet_addrs, [:public, :set, :named_table])
 
-    path = Path.absname("./lib/data/")
+    path = Path.absname(SB.Master.data_dir())
     Logger.debug("Dir path: " <> inspect(path))
 
     # Delete and recreate the data folder to remove all the files
-    path = Path.absname("./lib/data")
+    path = Path.absname(SB.Master.data_dir())
     File.rm_rf(path)
     File.mkdir_p(path)
-
 
     {:ok, %{}}
   end
@@ -108,118 +107,17 @@ defmodule SB.Master do
     w_pid
   end
 
-
-
-
+  def data_dir() do
+    "../lib/data"
+  end
 
   ############## Remove everything below (Copied from test)
 
-
   def perform_transaction do
-    Logger.debug("Block state now: " )
-    perform_test()
-    perform_coinbase_tx_test()
+    Logger.debug("Block state now: ")
+
+    SbWebWeb.Endpoint.broadcast!("room:sbp_channel", "new_tx", %{
+      "body" => Poison.encode!(%{x: :rand.uniform(100), y: :rand.uniform(100), r: 10})
+    })
   end
-
-  defp perform_test() do
-    SB.Master.init_network()
-    # Process.sleep(5000)
-    #assert true
-  end
-
-  defp check_for_block_in_state(pid, block_id, threshold_block_id)
-       when block_id > threshold_block_id do
-    block_id
-  end
-
-  defp check_for_block_in_state(pid, block_id, threshold_block_id) do
-    Process.sleep(1000)
-
-    state = GenServer.call(pid, :get_state, :infinity)
-    Logger.debug("Block state now: " <> inspect(state))
-    check_for_block_in_state(pid, state.block.block_id, threshold_block_id)
-  end
-
-  defp perform_coinbase_tx_test() do
-    # Process.sleep(1000_000)
-    # SB.Master.wait_till_genesis_coins_mined()
-
-    amount = 0.1
-    wallet_pid = SB.Master.perform_tranx(amount)
-
-    # Logger.debug(
-    #   "Call to get wallet state: " <> inspect(GenServer.call(wallet_pid, :get_state_info))
-    # )
-
-    wallet_state = GenServer.call(wallet_pid, :get_state_info, :infinity)
-
-    owner_pid = wallet_state.owner_pid
-    owner_state = GenServer.call(owner_pid, :get_state, :infinity)
-
-    # Process.sleep(20000)
-
-    block = check_for_block_in_state(owner_pid, owner_state.block.block_id, 0)
-    Logger.debug("Block test after coinbase: " <> inspect(block))
-
-    # TODO Improve assertion
-    {:ok, balance} = GenServer.call(wallet_pid, :get_balance, :infinity)
-
-    Logger.debug(
-      "Amount*100000000 and balance: " <>
-      inspect(amount * 100_000_000) <> "  " <> inspect(balance)
-    )
-
-    # Process.sleep(10000)
-    # Get the list of wallet pids and create a transaction for one of those wallets
-    receivers_wallet_pid =
-      SB.Master.get_wallet_pids()
-      |> List.delete(wallet_pid)
-
-    receiver_wallet_pid =
-      receivers_wallet_pid
-      |> List.first()
-
-    Logger.debug("Receiver wallet pid: " <> inspect(receiver_wallet_pid))
-    receiver_state = GenServer.call(receiver_wallet_pid, :get_state_info, :infinity)
-
-    receiver_bitcoinaddr_pubkey =
-      receiver_state.public_key
-      |> SB.CryptoHandle.generate_address()
-      |> Base.encode16()
-
-    response =
-      GenServer.call(
-        wallet_pid,
-        {:create_transaction, amount * 0.01, receiver_wallet_pid, receiver_bitcoinaddr_pubkey},
-        :infinity
-      )
-
-#    block = check_for_block_in_state(owner_pid, owner_state.block.block_id, 1)
-#    Logger.debug("Block test after coinbase: " <> inspect(block))
-
-    receiver_wallet_pid =
-      receivers_wallet_pid
-      |> List.last()
-
-    Logger.debug("Receiver wallet pid: " <> inspect(receiver_wallet_pid))
-
-    receiver_state = GenServer.call(receiver_wallet_pid, :get_state_info, :infinity)
-
-    receiver_bitcoinaddr_pubkey =
-      receiver_state.public_key
-      |> SB.CryptoHandle.generate_address()
-      |> Base.encode16()
-
-    response =
-      GenServer.call(
-        wallet_pid,
-        {:create_transaction, amount * 0.01, receiver_wallet_pid, receiver_bitcoinaddr_pubkey},
-        :infinity
-      )
-
-    #Helper.print_out_non_empty()
-
-    #assert balance == amount * 100_000_000 && block != nil
-  end
-
 end

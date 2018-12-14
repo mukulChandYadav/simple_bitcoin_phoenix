@@ -55,7 +55,7 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 socket.connect()
 
 // Now that you are connected, you can join channels with a topic:
-let channel = socket.channel("room:tx", {})
+let channel = socket.channel("room:sbp_channel", {})
 
 let chatInput         = document.querySelector("#chat-input")
 let messagesContainer = document.querySelector("#messages")
@@ -63,18 +63,23 @@ let messagesContainer = document.querySelector("#messages")
 
 chatInput.addEventListener("keypress", event => {
   if(event.keyCode === 13){
-    channel.push("new_msg", {body: chatInput.value})
+    channel.push("new_tx", {body: chatInput.value})
     chatInput.value = ""
   }
 })
 
 
-channel.on("new_msg", payload => {
+channel.on("new_tx", payload => {
   let messageItem = document.createElement("li")
   messageItem.innerText = `[${Date()}] ${payload.body}`
   messagesContainer.appendChild(messageItem)
 })
 
+channel.on("wallet_update", payload => {
+  let messageItem = document.createElement("li")
+  messageItem.innerText = `[${Date()}] ${payload.body}`
+  messagesContainer.appendChild(messageItem)
+})
 
 channel.join()
   .receive("ok", resp => { console.log("Joined successfully", resp) })

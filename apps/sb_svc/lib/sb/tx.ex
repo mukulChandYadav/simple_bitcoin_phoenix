@@ -64,8 +64,8 @@ defmodule SB.Tx do
     # # Logger.debug("---------Content empty--------")
     # # Logger.debug("Type: " <> inspect(type))
 
-    path = Path.absname("./lib/data/")
-    # # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
+    path = Path.absname(SB.Master.data_dir())
+    # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
     filename = inspect(node_id) <> type <> ".json"
     :ok = File.mkdir_p!(path)
 
@@ -77,8 +77,8 @@ defmodule SB.Tx do
   end
 
   def write_json(node_id, type, content) do
-    path = Path.absname("./lib/data/")
-    # # Logger.debug(inspect(__MODULE__) <> " Dir path: " <> inspect(path))
+    path = Path.absname(SB.Master.data_dir())
+    # Logger.debug(inspect(__MODULE__) <> " Dir path: " <> inspect(path))
     filename = inspect(node_id) <> type <> ".json"
     :ok = File.mkdir_p!(path)
 
@@ -219,8 +219,8 @@ defmodule SB.Tx do
     Logger.debug("Writing for sender: " <> inspect(utxo))
     {:ok, content} = Poison.encode(utxo)
 
-    path = Path.absname("./lib/data/")
-    # Logger.debug(inspect(__MODULE__) <> " Dir path: " <> inspect(path))
+    path = Path.absname(SB.Master.data_dir())
+    Logger.debug(inspect(__MODULE__) <> " Dir path: " <> inspect(path))
     filename = inspect(node_id) <> "utxo" <> ".json"
     :ok = File.mkdir_p!(path)
 
@@ -300,6 +300,9 @@ defmodule SB.Tx do
         content
       end
 
+    path = Path.absname(SB.Master.data_dir())
+    # Logger.debug(inspect(__MODULE__) <> " Dir path: " <> inspect(path))
+    filename = inspect(node_id) <> "utxo" <> ".json"
     :ok = File.mkdir_p!(path)
     # Logger.debug("Updating Receiver")
     File.write!(path <> "/" <> filename, content)
@@ -526,7 +529,7 @@ defmodule SB.Tx do
 
     # transaction = (version <> tx_in_count <> tx_in <> tx_out_count <> tx_out <> lock_time <> sigHash)
 
-    path = Path.absname("./lib/data/") <> node_id <> "keys.json"
+    path = Path.absname(SB.Master.data_dir()) <> node_id <> "keys.json"
 
     # {:ok, keys_map} =
     #   path

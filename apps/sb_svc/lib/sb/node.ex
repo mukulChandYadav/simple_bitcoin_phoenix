@@ -57,8 +57,8 @@ defmodule SB.Node do
     node_state = put_in(node_state.wallet, wallet_state)
 
     # Create UTXO file for this node
-    path = Path.absname("./lib/data/")
-    ## # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
+    path = Path.absname(SB.Master.data_dir())
+    ## Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
     filename = inspect(node_id) <> "utxo" <> ".json"
     :ok = File.mkdir_p!(path)
 
@@ -69,8 +69,8 @@ defmodule SB.Node do
     File.write!(path <> "/" <> filename, json_encoded_content)
 
     # Create TX file for this node
-    path = Path.absname("./lib/data/")
-    ## # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
+    path = Path.absname(SB.Master.data_dir())
+    ## Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
     filename = inspect(node_id) <> "tx" <> ".json"
     :ok = File.mkdir_p!(path)
 
@@ -358,9 +358,11 @@ defmodule SB.Node do
           } block."
         )
 
-        # SbWebWeb.Endpoint.broadcast!("room:tx", "new_msg", %{
-        #   "body" => Poison.encode!(List.last(new_state.block.tx))
-        # })
+        # TODO: x --> sender, y --> receiver and r --> amount for the tx
+
+        SbWebWeb.Endpoint.broadcast!("room:sbp_channel", "new_tx", %{
+          "body" => Poison.encode!(%{x: :rand.uniform(100), y: :rand.uniform(100), r: 10})
+        })
 
         Logger.debug("Update wallet with tx: " <> inspect(List.last(new_state.block.tx)))
         SB.Wallet.update_wallet_with_new_tx(new_state.wallet, List.last(new_state.block.tx))
