@@ -22,11 +22,11 @@ defmodule SB.Master do
     mine_job_table = :ets.new(:ets_mine_jobs, [:public, :set, :named_table])
     wallet_address_table = :ets.new(:ets_wallet_addrs, [:public, :set, :named_table])
 
-    path = Path.absname("./lib/data/")
+    path = Path.absname(SB.Master.data_dir())
     Logger.debug("Dir path: " <> inspect(path))
 
     # Delete and recreate the data folder to remove all the files
-    path = Path.absname("./lib/data")
+    path = Path.absname(SB.Master.data_dir())
     File.rm_rf(path)
     File.mkdir_p(path)
 
@@ -108,7 +108,9 @@ defmodule SB.Master do
     w_pid
   end
 
-
+  def data_dir() do
+    "../lib/data"
+  end
 
 
 
@@ -116,6 +118,11 @@ defmodule SB.Master do
 
 
   def perform_transaction do
+    Logger.debug("Block state now: " )
+    SbWebWeb.Endpoint.broadcast!("room:sbp_channel", "new_tx", %{"body" => Poison.encode! %{x: :rand.uniform(100), y: :rand.uniform(100), r: 10}})
+  end
+
+  def perform_transaction1 do
     Logger.debug("Block state now: " )
     perform_test()
     perform_coinbase_tx_test()

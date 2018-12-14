@@ -84,7 +84,7 @@ defmodule SB.Wallet do
     balance = 0
     node_id = state.owner_id
 
-    path = Path.absname("./lib/data/")
+    path = Path.absname(SB.Master.data_dir())
     # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
     filename = inspect(node_id) <> "utxo" <> ".json"
 
@@ -121,7 +121,7 @@ defmodule SB.Wallet do
     amount = (amount * satoshi_multiplier) |> trunc()
 
     # Pick up the utxos for the specified amount and call create_transaction_block with their list and btc address
-    path = Path.absname("./lib/data/")
+    path = Path.absname(SB.Master.data_dir())
     # Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
     node_id = inspect(state.owner_id)
     filename = node_id <> "utxo" <> ".json"

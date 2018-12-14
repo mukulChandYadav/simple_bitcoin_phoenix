@@ -15,3 +15,7 @@ import "phoenix_html"
 //
 // Local files can be imported directly using relative paths, for example:
  import socket from "./socket"
+
+import txChartController from "./tx-chart-controller"
+
+import walletUpdateChartController from "./wallet-update-chart-controller"

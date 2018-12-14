@@ -57,7 +57,7 @@ defmodule SB.Node do
     node_state = put_in(node_state.wallet, wallet_state)
 
     # Create UTXO file for this node
-    path = Path.absname("./lib/data/")
+    path = Path.absname(SB.Master.data_dir())
     ## Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
     filename = inspect(node_id) <> "utxo" <> ".json"
     :ok = File.mkdir_p!(path)
@@ -69,7 +69,7 @@ defmodule SB.Node do
     File.write!(path <> "/" <> filename, json_encoded_content)
 
     # Create TX file for this node
-    path = Path.absname("./lib/data/")
+    path = Path.absname(SB.Master.data_dir())
     ## Logger.debug(inspect(__MODULE__) <> "Dir path: " <> inspect(path))
     filename = inspect(node_id) <> "tx" <> ".json"
     :ok = File.mkdir_p!(path)
@@ -346,7 +346,8 @@ defmodule SB.Node do
             inspect(new_state.block.block_id)
           } block."
         )
-        SbWebWeb.Endpoint.broadcast!("room:tx", "new_msg", %{"body" => Poison.encode! List.last(new_state.block.tx)})
+        #SbWebWeb.Endpoint.broadcast!("room:tx", "new_msg", %{"body" => Poison.encode! List.last(new_state.block.tx)})
+        SbWebWeb.Endpoint.broadcast!("room:tx", "new_tx", %{"body" => Poison.encode! %{x: new_state.node_id, y: new_state.block.block_id, r: 10}})
 
         SB.Wallet.update_wallet_with_new_tx(new_state.wallet, List.last(new_state.block.tx))
 
@@ -464,4 +465,5 @@ defmodule SB.Node do
     # Logger.debug("Default call handler called")
     {:reply, :ok, state}
   end
+
 end
