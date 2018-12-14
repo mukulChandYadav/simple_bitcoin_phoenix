@@ -72,7 +72,7 @@ defmodule SB.Simulator do
         end
       end)
 
-    Process.sleep(20000)
+    Process.sleep(40000)
 
     {:reply, :ok, state}
   end

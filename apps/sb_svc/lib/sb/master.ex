@@ -52,7 +52,7 @@ defmodule SB.Master do
     Logger.debug("Init network")
 
     # 8
-    num_miners = 10
+    num_miners = 100
 
     for x <- 1..num_miners do
       {:ok, node_pid} =

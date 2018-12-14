@@ -360,11 +360,23 @@ defmodule SB.Node do
 
         # TODO: x --> sender, y --> receiver and r --> amount for the tx
         new_tx = List.last(new_state.block.tx)
-        # amount = new_tx[:value] |> String.to_integer(16)
+
+        amount =
+          new_tx.outputs
+          |> List.first()
+          |> Map.get(:value)
+          |> String.to_integer(16)
+
+        amount = amount/100000000
         Logger.debug("Update wallet with tx: " <> inspect(new_tx))
 
         SbWebWeb.Endpoint.broadcast!("room:sbp_channel", "new_tx", %{
-          "body" => Poison.encode!(%{sender: :rand.uniform(100), receiver: :rand.uniform(100), amount: 10})
+          "body" =>
+            Poison.encode!(%{
+              sender: :rand.uniform(100),
+              receiver: :rand.uniform(100),
+              amount: amount
+            })
         })
 
         SB.Wallet.update_wallet_with_new_tx(new_state.wallet, new_tx)
