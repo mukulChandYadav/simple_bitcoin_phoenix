@@ -99,6 +99,7 @@ defmodule SB.Master do
 
   def perform_tranx(amount) do
     first_key = :ets.first(:ets_wallet_addrs)
+    Logger.debug("First key amongst wallets: " <> inspect(first_key))
     [{_, w_pid}] = :ets.lookup(:ets_wallet_addrs, first_key)
     # wallet_state = GenServer.call(w_pid, :get_state_info)
 

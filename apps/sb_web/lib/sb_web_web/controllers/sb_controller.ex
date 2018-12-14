@@ -21,8 +21,8 @@ defmodule SbWebWeb.SBController do
     # Start simulation
     # Task.async(SB.Master.perform_transaction)
     # SB.Master.perform_transaction
-    SB.Simulator.start_simualtion()
 
+    SB.Simulator.start_simulation()
     render(conn, "index.html")
   end
 end

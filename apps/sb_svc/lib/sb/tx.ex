@@ -249,6 +249,8 @@ defmodule SB.Tx do
         # Read if a utxo already exists for the receiver
         # If yes then add it to the current value
 
+        Logger.debug("Path for get_json: " <> inspect(path <> "/" <> filename))
+
         {:ok, existing_utxo} =
           (path <> "/" <> filename)
           |> get_json
