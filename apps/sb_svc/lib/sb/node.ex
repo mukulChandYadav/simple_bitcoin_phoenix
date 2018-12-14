@@ -364,7 +364,7 @@ defmodule SB.Node do
         Logger.debug("Update wallet with tx: " <> inspect(new_tx))
 
         SbWebWeb.Endpoint.broadcast!("room:sbp_channel", "new_tx", %{
-          "body" => Poison.encode!(%{x: :rand.uniform(100), y: :rand.uniform(100), r: 10})
+          "body" => Poison.encode!(%{sender: :rand.uniform(100), receiver: :rand.uniform(100), amount: 10})
         })
 
         SB.Wallet.update_wallet_with_new_tx(new_state.wallet, new_tx)
